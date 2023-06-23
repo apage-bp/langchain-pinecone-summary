@@ -18,7 +18,7 @@ with st.sidebar:
 source_doc = st.file_uploader("Upload source document", type="pdf", label_visibility="collapsed")
 query = st.text_input("Enter your query")
 
-if st.button("Submit"):
+if st.button("Submit File"):
     # Validate inputs
     if not openai_api_key or not pinecone_api_key or not pinecone_env or not pinecone_index or not source_doc or not query:
         st.warning(f"Please upload the document and provide the missing fields.")
@@ -37,11 +37,18 @@ if st.button("Submit"):
             vectordb = Pinecone.from_documents(pages, embeddings, index_name=pinecone_index)
             retriever = vectordb.as_retriever()
 
+           
+            
+            st.success(response)
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
+
+if st.button("Run Query"):
+try:
             # Initialize the OpenAI module, load and run the Retrieval Q&A chain
             llm = OpenAI(temperature=0, openai_api_key=openai_api_key)
             qa = RetrievalQA.from_chain_type(llm, chain_type="stuff", retriever=retriever)
             response = qa.run(query)
-            
             st.success(response)
-        except Exception as e:
+except Exception as e:
             st.error(f"An error occurred: {e}")
